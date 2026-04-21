@@ -1,4 +1,5 @@
 // app/read/[book]/[chapter]/page.tsx
+import { SquareChevronRight, SquareChevronLeft, SquareChevronDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -49,8 +50,8 @@ export default async function BiblePage({
   return (
     <main className="max-w-2xl mx-auto p-8">
 
-      <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block">
-      ← All Books
+      <Link href="/" className="flex flex-row items-center gap-2 text-sm text-gray-400 hover:text-gray-600 mb-6">
+      <SquareChevronDown size={24} /> All Books
       </Link>
 
       <h1 className="text-3xl font-bold mb-6">
@@ -71,8 +72,8 @@ export default async function BiblePage({
 
       <div className="flex justify-between mt-12 pt-6 border-t">
         {prevChapter ? (
-          <Link href={`/read/${book}/${prevChapter}`} className="px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
-            ← Chapter {prevChapter}
+          <Link href={`/read/${book}/${prevChapter}`} className="flex flex-row items-center gap-2 text-sm px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
+            <SquareChevronLeft size={24} /> Chapter {prevChapter}
           </Link>
         ) : <div />}
 
@@ -81,8 +82,8 @@ export default async function BiblePage({
         </span>
 
         {nextChapter ? (
-          <Link href={`/read/${book}/${nextChapter}`} className="px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
-            Chapter {nextChapter} →
+          <Link href={`/read/${book}/${nextChapter}`} className="flex flex-row items-center gap-2 text-sm px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
+            Chapter {nextChapter} <SquareChevronRight size={24} />
           </Link>
         ) : <div />}
       </div>
