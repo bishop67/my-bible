@@ -1,7 +1,8 @@
-// app/read/[book]/[chapter]/page.tsx
 import { SquareChevronRight, SquareChevronLeft, SquareChevronDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import fs from 'fs';
+import path from 'path';
 
 interface Verse {
   verse: number;
@@ -28,13 +29,15 @@ export default async function BiblePage({
 
   let bookData: BookData;
   try {
-    bookData = (await import(`@/data/${book}.json`)).default;
-  } catch {
+    const filePath = path.join(process.cwd(), 'data', 'bible', `${book}.json`);
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    bookData = JSON.parse(fileContents);
+  } catch (e) {
+    console.error('File error:', e);
     notFound();
   }
-
   const chapterNum = parseInt(chapter);
-  const totalChapter = bookData.chapters.length;
+  const totalChapter = bookData!.chapters.length;
 
   const chapterData = bookData!.chapters.find(
     (c) => c.chapter === chapterNum
@@ -49,9 +52,8 @@ export default async function BiblePage({
 
   return (
     <main className="max-w-2xl mx-auto p-8">
-
       <Link href="/" className="flex flex-row items-center gap-2 text-sm text-gray-400 hover:text-gray-600 mb-6">
-      <SquareChevronDown size={24} /> All Books
+        <SquareChevronDown size={24} /> All Books
       </Link>
 
       <h1 className="text-3xl font-bold mb-6">

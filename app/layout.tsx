@@ -3,7 +3,6 @@ import { EB_Garamond, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 
-
 const garamond = EB_Garamond({
   subsets: ["latin"],
   variable: "--font-garamond",
@@ -31,13 +30,11 @@ export default function RootLayout({
 
       <body className="font-sans antialiased text-gray-900 leading-relaxed">
 
-      <header className="font-serif font-bold text-3xl p-6 text-center border-b">
-        <Link href="/" className="font-display">KJV + Apocrypha</Link>
-      </header>
+        <header className="font-serif font-bold text-3xl p-6 text-center border-b">
+          <Link href="/" className="font-display">KJV + Apocrypha</Link>
+        </header>
 
-      <main className="font-serif max-w-3xl mx-auto p-8 text-lg">
         {children}
-        </main>
 
       </body>
     </html>
