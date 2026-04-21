@@ -73,8 +73,6 @@ const BOOKS = [
 
 export default function Home() {
   return (
-    <main className="max-w-4x1 mx-auto p-8">
-      <h1 className="text-4x1 font-bold mb-8">Bible</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {BOOKS.map((book) => (
           <Link
@@ -86,6 +84,5 @@ export default function Home() {
           </Link>
         ))}
       </div>
-    </main>
   )
 }
