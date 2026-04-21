@@ -1,0 +1,17 @@
+{
+  "Old Testament": {
+    "Pentateuch": ["genesis", "exodus", "leviticus", "numbers", "deuteronomy"],
+    "History": ["joshua", "judges", "ruth", "1-samuel", "2-samuel", "1-kings", "2-kings", "1-chronicles", "2-chronicles", "ezra", "nehemiah", "esther"],
+    "Poetry": ["job", "psalms", "proverbs", "ecclesiastes", "song-of-solomon"],
+    "Major Prophets": ["isaiah", "jeremiah", "lamentations", "ezekiel", "daniel"],
+    "Minor Prophets": ["hosea", "joel", "amos", "obadiah", "jonah", "micah", "nahum", "habakkuk", "zephaniah", "haggai", "zechariah", "malachi"]
+  },
+  "Apocrypha": {
+    "Deuterocanon": ["1-esdras", "2-esdras", "tobit", "judith", "rest-of-esther", "wisdom", "ecclesiasticus", "baruch", "epistle-of-jeremy", "song-of-the-three-children", "susanna", "bel-and-the-dragon", "prayer-of-manasses", "1-maccabees", "2-maccabees"]
+  },
+  "New Testament": {
+    "Gospels & Acts": ["matthew", "mark", "luke", "john", "acts"],
+    "Epistles": ["romans", "1-corinthians", "2-corinthians", "galatians", "ephesians", "philippians", "colossians", "1-thessalonians", "2-thessalonians", "1-timothy", "2-timothy", "titus", "philemon", "hebrews", "james", "1-peter", "2-peter", "1-john", "2-john", "3-john", "jude"],
+    "Revelation": ["revelation"]
+  }
+}
