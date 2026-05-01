@@ -1,27 +1,132 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Notebook paper, after the "Ruled" and "Ledger" textures in v0's Notebook library. */
+  --paper: #fbf8f1;
+  --background: var(--paper);
+  --foreground: #1c1917;
+
+  --rule: #c9d6e3;
+  --margin-rule: #e3a1a1;
+  --line: 2rem;
+
+  /* Inset around the framed verse view, from the v0 newsletter template. */
+  --inset: min(2vw, 1.5rem);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --font-serif: var(--font-garamond), serif;
   --font-display: var(--font-playfair), serif;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --animate-shine: shine 2s ease-in-out infinite;
+  /* "backwards" so no filter lingers afterwards to trap position: fixed children. */
+  --animate-ink-in: ink-in 600ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: rgb(253 230 138 / 0.8);
+  color: #1c1917;
+}
+
+html {
+  scrollbar-color: rgb(120 113 108 / 0.45) transparent;
+}
+
+@keyframes ink-in {
+  from { opacity: 0; filter: blur(6px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0; }
+}
+
+/* The margin rule sits just left of the centred reading column. */
+@utility paper-ruled {
+  --margin-x: max(1.25rem, calc(50% - 23rem));
+  background-color: var(--paper);
+  background-position: 0 var(--rule-offset, 0);
+  background-image:
+    linear-gradient(90deg, transparent calc(var(--margin-x) - 1px), var(--margin-rule) calc(var(--margin-x) - 1px), var(--margin-rule) var(--margin-x), transparent var(--margin-x)),
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px), var(--rule) var(--line)),
+    repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(0, 0, 0, 0.018) 11px, rgba(0, 0, 0, 0.018) 12px);
+}
+
+@utility showcase-btn {
+  display: inline-flex;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  background: rgb(255 255 255 / 0.35);
+  backdrop-filter: blur(6px);
+  transition: background-color 200ms;
+  &:hover { background: rgb(255 255 255 / 0.6); }
+}
+
+/* Frosted pill buttons from the newsletter template. */
+@utility glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  padding-inline: 1.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: #fafafa;
+  border: 1px solid rgb(250 250 250 / 0.5);
+  background: rgb(250 250 250 / 0.2);
+  backdrop-filter: blur(4px);
+  box-shadow:
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.05),
+    inset 0 0 2px 1px rgba(255, 255, 255, 0.2),
+    0 0 10px 0 rgba(255, 255, 255, 0.1);
+  transition: background-color 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
+  &:hover {
+    background: rgb(250 250 250 / 0.3);
+    border-color: rgb(250 250 250 / 0.15);
+    box-shadow:
+      inset 0 0 5px 1px rgba(255, 255, 255, 0.2),
+      inset 0.5px 0.5px 1px 0.5px rgba(255, 255, 255, 0.5),
+      inset -0.5px -0.5px 0.5px 0.5px rgba(0, 0, 0, 0.2),
+      0 0 12px 4px rgba(255, 255, 255, 0.5);
+  }
+  &:focus-visible { outline: 2px solid rgb(250 250 250 / 0.7); outline-offset: 3px; }
+  &:disabled { opacity: 0.4; pointer-events: none; }
+}
+
+@utility glass-panel {
+  border: 2px solid rgb(250 250 250 / 0.5);
+  /* A cooler, darker tint than the template so white text holds up over bright cloud. */
+  background: rgb(24 34 58 / 0.32);
+  scrollbar-color: rgb(250 250 250 / 0.45) transparent;
+  scrollbar-width: thin;
+  backdrop-filter: blur(24px);
+  border-radius: 1.5rem;
+  box-shadow:
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.05),
+    inset 0 0 2px 1px rgba(255, 255, 255, 0.2),
+    0 0 10px 0 rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }
