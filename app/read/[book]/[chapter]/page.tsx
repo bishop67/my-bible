@@ -1,24 +1,7 @@
-import { SquareChevronRight, SquareChevronLeft, SquareChevronDown } from 'lucide-react';
+import { SquareChevronRight, SquareChevronLeft, SquareChevronDown, ChevronDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import fs from 'fs';
-import path from 'path';
-
-interface Verse {
-  verse: number;
-  text: string;
-  new_paragraph: boolean;
-}
-
-interface Chapter {
-  chapter: number;
-  verses: Verse[];
-}
-
-interface BookData {
-  book: string;
-  chapters: Chapter[];
-}
+import { loadBook, type Verse } from '@/lib/bible';
 
 export default async function BiblePage({
   params,
@@ -27,67 +10,122 @@ export default async function BiblePage({
 }) {
   const { book, chapter } = await params;
 
-  let bookData: BookData;
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'bible', `${book}.json`);
-    const fileContents = fs.readFileSync(filePath, 'utf8');
-    bookData = JSON.parse(fileContents);
-  } catch (e) {
-    console.error('File error:', e);
-    notFound();
-  }
+  const bookData = loadBook(book);
+  if (!bookData) notFound();
+
   const chapterNum = parseInt(chapter);
-  const totalChapter = bookData!.chapters.length;
-
-  const chapterData = bookData!.chapters.find(
-    (c) => c.chapter === chapterNum
-  );
-
-  if (!chapterData) {
-    notFound();
-  }
+  const totalChapter = bookData.chapters.length;
+  const chapterData = bookData.chapters.find((c) => c.chapter === chapterNum);
+  if (!chapterData) notFound();
 
   const prevChapter = chapterNum > 1 ? chapterNum - 1 : null;
   const nextChapter = chapterNum < totalChapter ? chapterNum + 1 : null;
 
+  // Group verses into the paragraphs marked in the source text.
+  const paragraphs = chapterData.verses.reduce<Verse[][]>((acc, verse) => {
+    if (verse.new_paragraph || acc.length === 0) acc.push([]);
+    acc[acc.length - 1].push(verse);
+    return acc;
+  }, []);
+
+  // Translators' notes are lettered through the chapter and listed at the foot of the page.
+  const notes = chapterData.verses.flatMap((v) => v.notes.map((text) => ({ verse: v.verse, text })));
+  const letter = (i: number) => String.fromCharCode(97 + (i % 26));
+  let noteIndex = 0;
+
   return (
-    <main className="max-w-2xl mx-auto p-8">
-      <Link href="/" className="flex flex-row items-center gap-2 text-sm text-gray-400 hover:text-gray-600 mb-6">
-        <SquareChevronDown size={24} /> All Books
-      </Link>
+    <main className="paper-ruled min-h-screen [--rule-offset:-0.4rem]">
+      <div className="mx-auto max-w-2xl px-5 pt-[var(--line)] pb-[calc(var(--line)*3)] pl-10 text-stone-800 sm:pl-5">
+        <nav className="flex h-[var(--line)] items-center justify-between text-base text-stone-500">
+          <Link href={`/?book=${book}`} className="flex items-center gap-2 hover:text-stone-800">
+            <SquareChevronDown size={18} /> Library
+          </Link>
+          <details className="relative">
+            <summary className="cursor-pointer list-none hover:text-stone-800">
+              <span className="flex items-center gap-1">
+                Chapter {chapterNum} of {totalChapter} <ChevronDown size={14} />
+              </span>
+            </summary>
+            <div className="absolute right-0 z-10 mt-2 grid max-h-72 w-72 grid-cols-6 gap-1 overflow-y-auto rounded-md border border-stone-300 bg-[var(--paper)] p-2 shadow-lg">
+              {bookData.chapters.map((c) => (
+                <Link
+                  key={c.chapter}
+                  href={`/read/${book}/${c.chapter}`}
+                  className={`rounded py-1 text-center tabular-nums hover:bg-stone-200 ${c.chapter === chapterNum ? 'bg-stone-800 text-white hover:bg-stone-700' : ''}`}
+                >
+                  {c.chapter}
+                </Link>
+              ))}
+            </div>
+          </details>
+        </nav>
 
-      <h1 className="text-3xl font-bold mb-6">
-        {bookData!.book} — Chapter {chapterData.chapter}
-      </h1>
-
-      <div>
-        {chapterData.verses.map((verse) => (
-          <p
-            key={verse.verse}
-            className={`text-lg leading-relaxed ${verse.new_paragraph ? 'mt-6' : 'mt-2'}`}
-          >
-            <span className="font-bold text-gray-400 mr-2">{verse.verse}</span>
-            {verse.text}
+        <header className="mt-[var(--line)]">
+          <h1 className="font-display text-5xl leading-[calc(var(--line)*2)] font-semibold text-balance">
+            {bookData.book}
+          </h1>
+          <p className="font-serif text-xl leading-[var(--line)] text-stone-500 italic">
+            Chapter {chapterData.chapter}
           </p>
-        ))}
-      </div>
+        </header>
 
-      <div className="flex justify-between mt-12 pt-6 border-t">
-        {prevChapter ? (
-          <Link href={`/read/${book}/${prevChapter}`} className="flex flex-row items-center gap-2 text-sm px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
-            <SquareChevronLeft size={24} /> Chapter {prevChapter}
-          </Link>
-        ) : <div />}
+        <div className="mt-[var(--line)] font-serif text-xl leading-[var(--line)]">
+          {paragraphs.map((verses) => (
+            <p key={verses[0].verse} className="mb-[var(--line)] indent-6">
+              {verses.map((verse) => (
+                <Link
+                  key={verse.verse}
+                  id={`v${verse.verse}`}
+                  href={`/read/${book}/${chapterNum}/${verse.verse}`}
+                  className="scroll-mt-24 rounded-sm box-decoration-clone decoration-transparent transition-colors hover:bg-amber-200/60 target:bg-amber-200/60"
+                >
+                  <sup className="mr-1 font-sans text-[0.6em] leading-none font-semibold text-rose-700/80">{verse.verse}</sup>
+                  {verse.text}
+                  {verse.notes.map(() => (
+                    <sup key={noteIndex} className="ml-0.5 font-sans text-[0.6em] leading-none text-sky-700/80 italic">
+                      {letter(noteIndex++)}
+                    </sup>
+                  ))}{' '}
+                </Link>
+              ))}
+            </p>
+          ))}
+        </div>
 
-        <span className="text-sm text-gray-400 self-center">
-          {chapterNum} / {totalChapter}
-        </span>
+        {notes.length > 0 && (
+          <aside className="font-serif text-base leading-[var(--line)] text-stone-600">
+            <h2 className="font-display text-lg leading-[var(--line)] font-semibold text-stone-700">Notes</h2>
+            <ol>
+              {notes.map((n, i) => (
+                <li key={i}>
+                  <span className="mr-2 font-sans text-xs text-sky-700/80 italic">{letter(i)}</span>
+                  <a href={`#v${n.verse}`} className="mr-1 tabular-nums text-stone-500 hover:text-stone-800">
+                    v{n.verse}
+                  </a>{' '}
+                  {n.text}
+                </li>
+              ))}
+            </ol>
+          </aside>
+        )}
 
-        {nextChapter ? (
-          <Link href={`/read/${book}/${nextChapter}`} className="flex flex-row items-center gap-2 text-sm px-4 py-2 border rounded hover:bg-gray-100 transition-colors">
-            Chapter {nextChapter} <SquareChevronRight size={24} />
-          </Link>
-        ) : <div />}
+        <div className="grid h-[calc(var(--line)*2)] grid-cols-3 items-center text-base">
+          {prevChapter ? (
+            <Link href={`/read/${book}/${prevChapter}`} className="flex items-center gap-2 justify-self-start rounded px-3 py-1 hover:bg-stone-800/5">
+              <SquareChevronLeft size={20} /> Chapter {prevChapter}
+            </Link>
+          ) : <div />}
+
+          <span className="text-center text-stone-400 tabular-nums">
+            {chapterNum} / {totalChapter}
+          </span>
+
+          {nextChapter ? (
+            <Link href={`/read/${book}/${nextChapter}`} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5">
+              Chapter {nextChapter} <SquareChevronRight size={20} />
+            </Link>
+          ) : <div />}
+        </div>
       </div>
     </main>
   );
