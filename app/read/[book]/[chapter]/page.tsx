@@ -1,7 +1,9 @@
-import { SquareChevronRight, SquareChevronLeft, SquareChevronDown, ChevronDown } from 'lucide-react';
+import { SquareChevronRight, SquareChevronLeft, ArrowLeft, ChevronDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { loadBook, type Verse } from '@/lib/bible';
+import { chapterArt } from '@/lib/art';
+import { InlinePlate, MarginPlates } from '@/components/chapter-art';
 
 export default async function BiblePage({
   params,
@@ -28,17 +30,20 @@ export default async function BiblePage({
     return acc;
   }, []);
 
+  const arts = chapterArt(book, chapterNum);
+
   // Translators' notes are lettered through the chapter and listed at the foot of the page.
   const notes = chapterData.verses.flatMap((v) => v.notes.map((text) => ({ verse: v.verse, text })));
   const letter = (i: number) => String.fromCharCode(97 + (i % 26));
   let noteIndex = 0;
 
   return (
-    <main className="paper-ruled min-h-screen [--rule-offset:-0.4rem]">
+    <main className="paper-ruled relative min-h-screen overflow-x-clip [--rule-offset:-0.4rem]">
+      <MarginPlates arts={arts} book={bookData.book} chapter={chapterNum} />
       <div className="mx-auto max-w-2xl px-5 pt-[var(--line)] pb-[calc(var(--line)*3)] pl-10 text-stone-800 sm:pl-5">
         <nav className="flex h-[var(--line)] items-center justify-between text-base text-stone-500">
-          <Link href={`/?book=${book}`} className="flex items-center gap-2 hover:text-stone-800">
-            <SquareChevronDown size={18} /> Library
+          <Link href="/books" className="flex items-center gap-2 hover:text-stone-800">
+            <ArrowLeft size={18} /> Contents
           </Link>
           <details className="relative">
             <summary className="cursor-pointer list-none hover:text-stone-800">
@@ -71,13 +76,19 @@ export default async function BiblePage({
 
         <div className="mt-[var(--line)] font-serif text-xl leading-[var(--line)]">
           {paragraphs.map((verses) => (
-            <p key={verses[0].verse} className="mb-[var(--line)] indent-6">
+            <div key={verses[0].verse}>
+            {arts
+              .filter((a) => a.from >= verses[0].verse && a.from <= verses[verses.length - 1].verse)
+              .map((a) => (
+                <InlinePlate key={a.src} art={a} book={bookData.book} chapter={chapterNum} />
+              ))}
+            <p className="mb-[var(--line)] indent-6">
               {verses.map((verse) => (
-                <Link
+                <span
                   key={verse.verse}
                   id={`v${verse.verse}`}
-                  href={`/read/${book}/${chapterNum}/${verse.verse}`}
-                  className="scroll-mt-24 rounded-sm box-decoration-clone decoration-transparent transition-colors hover:bg-amber-200/60 target:bg-amber-200/60"
+                  data-verse={verse.verse}
+                  className="scroll-mt-24 rounded-sm box-decoration-clone transition-colors target:bg-amber-200/60"
                 >
                   <sup className="mr-1 font-sans text-[0.6em] leading-none font-semibold text-rose-700/80">{verse.verse}</sup>
                   {verse.text}
@@ -86,9 +97,10 @@ export default async function BiblePage({
                       {letter(noteIndex++)}
                     </sup>
                   ))}{' '}
-                </Link>
+                </span>
               ))}
             </p>
+            </div>
           ))}
         </div>
 
