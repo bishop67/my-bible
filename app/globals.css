@@ -10,8 +10,6 @@
   --margin-rule: #e3a1a1;
   --line: 2rem;
 
-  /* Inset around the framed backdrop on the contents page, from the v0 newsletter template. */
-  --inset: min(2vw, 1.5rem);
 }
 
 @theme inline {
