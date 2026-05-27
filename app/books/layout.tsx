@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 // The table of contents (page.tsx) is left exactly as written. This layout sets it like
 // the contents page of an old Bible: a Doré frontispiece on one side, the list on paper
@@ -25,10 +26,10 @@ export default function BooksLayout({ children }: { children: React.ReactNode })
 
       <div className="pb-16">
         <header className="px-8 pt-10 lg:pt-16">
-          <Link href="/" className="font-display text-5xl leading-tight font-semibold hover:text-stone-700 sm:text-6xl">
-            KJV + Apocrypha
+          <Link href="/" className="inline-flex items-center gap-2 font-serif text-lg text-stone-600 hover:text-stone-900">
+            <ArrowLeft className="size-4" /> Home
           </Link>
-          <p className="mt-2 font-serif text-xl text-stone-600 italic">Contents</p>
+          <h1 className="mt-4 font-display text-5xl leading-tight font-semibold sm:text-6xl">Contents</h1>
         </header>
 
         <div
