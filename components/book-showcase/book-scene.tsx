@@ -1,10 +1,13 @@
 'use client';
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { Environment, TrackballControls, useGLTF } from '@react-three/drei';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import { generateUVForBothCovers } from './uv';
+
+// "Leather Book" by Smoggybeard on Sketchfab, CC BY 4.0:
+// https://sketchfab.com/3d-models/leather-book-7d941f84245d4bafb7e94852aec9f02d
+export const MODEL = '/models/leather-book.glb';
 
 export interface SceneParams {
   rotation: [number, number, number];
@@ -12,8 +15,7 @@ export interface SceneParams {
   cameraFov: number;
 }
 
-const POSITION: [number, number, number] = [-3, -3, -3];
-const CAMERA: [number, number, number] = [-4.2, -2.9, 0.4];
+const CAMERA: [number, number, number] = [0, 0, 6];
 
 function CameraFov({ fov }: { fov: number }) {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
@@ -26,100 +28,49 @@ function CameraFov({ fov }: { fov: number }) {
   return null;
 }
 
-function Book({
-  params,
-  texture,
-  onReady,
-}: {
-  params: SceneParams;
-  texture: THREE.Texture | null;
-  onReady: () => void;
-}) {
-  const { scene } = useGLTF('/book.glb');
+function Book({ params, onReady }: { params: SceneParams; onReady: () => void }) {
+  const { scene } = useGLTF(MODEL);
 
-  // Clone once and bake cover UVs onto the clone, leaving the cached GLTF untouched.
-  const { root, cover } = useMemo(() => {
-    const root = scene.clone(true);
-    const mesh = root.getObjectByName('Object_2') as THREE.Mesh | undefined;
-    if (mesh) {
-      mesh.geometry = mesh.geometry.clone();
-      generateUVForBothCovers(mesh);
-      const base = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
-      const material = (base as THREE.MeshStandardMaterial).clone();
-      material.color.set('#ffffff');
-      material.metalness = 0.25;
-      material.roughness = 0.85;
-      material.emissive.set('#000000');
-      // The rebuilt geometry has no COLOR_0 attribute; leaving this on renders black.
-      material.vertexColors = false;
-      material.polygonOffset = true;
-      material.polygonOffsetFactor = -1;
-      material.polygonOffsetUnits = -1;
-      mesh.material = material;
-    }
-    return { root, cover: mesh };
+  // Centre the model on the origin and normalise it to a unit-ish size, whatever
+  // scale and pivot it was authored with.
+  const root = useMemo(() => {
+    const clone = scene.clone(true);
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const centre = box.getCenter(new THREE.Vector3());
+    clone.position.sub(centre);
+    const group = new THREE.Group();
+    group.add(clone);
+    group.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
+    return group;
   }, [scene]);
 
   useEffect(() => {
-    if (!cover || !texture) return;
-    const material = cover.material as THREE.MeshStandardMaterial;
-    // eslint-disable-next-line react-hooks/immutability
-    material.map = texture;
-    material.needsUpdate = true;
-  }, [cover, texture]);
-
-  const reported = useRef(false);
-  useFrame(() => {
-    if (!reported.current && texture) {
-      reported.current = true;
-      onReady();
-    }
-  });
+    const frame = requestAnimationFrame(onReady);
+    return () => cancelAnimationFrame(frame);
+  }, [root, onReady]);
 
   return (
-    <primitive
-      object={root}
-      scale={params.scale}
-      position={POSITION}
-      rotation={params.rotation}
-    />
+    <group rotation={params.rotation} scale={params.scale}>
+      <primitive object={root} />
+    </group>
   );
 }
 
-export function BookScene({
-  params,
-  texture,
-  onReady,
-}: {
-  params: SceneParams;
-  texture: THREE.Texture | null;
-  onReady: () => void;
-}) {
+export function BookScene({ params, onReady }: { params: SceneParams; onReady: () => void }) {
   return (
-    <Canvas
-      className="h-full w-full"
-      camera={{ position: CAMERA, fov: params.cameraFov }}
-      dpr={[1, 2]}
-      legacy
-    >
+    <Canvas className="h-full w-full" camera={{ position: CAMERA, fov: params.cameraFov }} dpr={[1, 2]}>
       <Suspense fallback={null}>
         <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <directionalLight position={[-5, 8, 10]} intensity={0.8} color="#fffacd" />
-        <Environment preset="sunset" />
+        <directionalLight position={[4, 6, 5]} intensity={1.2} />
+        <directionalLight position={[-5, 3, 4]} intensity={0.5} color="#fff3d6" />
+        <Environment preset="apartment" />
         <CameraFov fov={params.cameraFov} />
-        <Book params={params} texture={texture} onReady={onReady} />
-        <TrackballControls
-          noPan
-          noZoom
-          staticMoving={false}
-          dynamicDampingFactor={0.05}
-          rotateSpeed={1.5}
-          target={POSITION}
-        />
+        <Book params={params} onReady={onReady} />
+        <TrackballControls noPan noZoom staticMoving={false} dynamicDampingFactor={0.05} rotateSpeed={1.5} />
       </Suspense>
     </Canvas>
   );
 }
 
-useGLTF.preload('/book.glb');
+useGLTF.preload(MODEL);
