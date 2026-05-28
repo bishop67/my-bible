@@ -3,17 +3,31 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { BookOpen } from 'lucide-react';
-import type * as THREE from 'three';
 import type { DailyVerse } from '@/lib/bible';
-import { drawBibleCover } from './covers';
 import type { SceneParams } from './book-scene';
 
 const BookScene = dynamic(() => import('./book-scene').then((m) => m.BookScene), { ssr: false });
 
-const REST: [number, number, number] = [1.2, 0, 0];
-const INTRO: [number, number, number] = [1.6, 0, 0.3];
+// If the 3D model can't load (missing file, no WebGL), the rest of the page still works.
+class SceneBoundary extends Component<{ children: ReactNode; onError: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.warn('Book model failed to load:', error);
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+// Resting pose: the book lying at an angle so the cover and page edges both show.
+const REST: [number, number, number] = [0.55, -0.6, 0];
+const INTRO: [number, number, number] = [0.9, -1.1, 0.15];
 
 // Same breakpoints as the template: a wider lens on squarer or very large screens.
 function responsiveFov(width: number, height: number) {
@@ -39,25 +53,12 @@ function animate(duration: number, step: (t: number) => void, done?: () => void)
 
 export default function BookShowcase({ verse }: { verse: DailyVerse | null }) {
   const router = useRouter();
-  const [params, setParams] = useState<SceneParams>({ rotation: INTRO, scale: 5, cameraFov: 30 });
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [params, setParams] = useState<SceneParams>({ rotation: INTRO, scale: 1, cameraFov: 30 });
   const [ready, setReady] = useState(false);
   const [opening, setOpening] = useState(false);
+  // Without the model the page becomes one centred column rather than half empty.
+  const [noModel, setNoModel] = useState(false);
   const busy = useRef(false);
-
-  // The cover is lettered with the page font, so wait for it before drawing.
-  useEffect(() => {
-    let cancelled = false;
-    const display = getComputedStyle(document.documentElement).getPropertyValue('--font-playfair');
-    Promise.all([document.fonts.load(`600 64px ${display}`), document.fonts.ready])
-      .catch(() => {})
-      .then(() => {
-        if (!cancelled) setTexture(drawBibleCover());
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const resize = () =>
@@ -95,8 +96,8 @@ export default function BookShowcase({ verse }: { verse: DailyVerse | null }) {
         const e = easeInOutCubic(t);
         setParams((p) => ({
           ...p,
-          scale: 5 + e * 1.5,
-          rotation: [start[0] + (Math.PI / 2 - start[0]) * e, start[1], start[2]],
+          scale: 1 + e * 0.35,
+          rotation: [start[0] * (1 - e), start[1] * (1 - e), start[2] * (1 - e)],
         }));
       },
       () => router.push('/books')
@@ -106,16 +107,18 @@ export default function BookShowcase({ verse }: { verse: DailyVerse | null }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#ece6da] text-stone-900">
       <div className="mx-auto max-w-[1500px]">
-        <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-2">
+        <div className={`flex min-h-screen flex-col ${noModel ? 'items-center justify-center text-center' : 'lg:grid lg:grid-cols-2'}`}>
           <div
-            className="h-[50vh] w-full shrink-0 transition-opacity duration-500 lg:h-screen"
+            className={`h-[50vh] w-full shrink-0 transition-opacity duration-500 lg:h-screen ${noModel ? 'hidden' : ''}`}
             style={{ opacity: ready ? 1 : 0 }}
           >
-            <BookScene params={params} texture={texture} onReady={onReady} />
+            <SceneBoundary onError={() => setNoModel(true)}>
+              <BookScene params={params} onReady={onReady} />
+            </SceneBoundary>
           </div>
 
-          <div className="flex-1 lg:flex lg:h-screen lg:items-center">
-            <div className="mx-auto max-w-2xl space-y-10 p-8 lg:px-0 lg:py-12 lg:pr-9">
+          <div className={noModel ? '' : 'flex-1 lg:flex lg:h-screen lg:items-center'}>
+            <div className={`mx-auto max-w-2xl space-y-10 p-8 ${noModel ? '' : 'lg:px-0 lg:py-12 lg:pr-9'}`}>
               <div className="space-y-3">
                 <h1 className="font-display text-5xl leading-[1.05] font-semibold text-balance sm:text-7xl">
                   KJV + Apocrypha
@@ -126,7 +129,7 @@ export default function BookShowcase({ verse }: { verse: DailyVerse | null }) {
               </div>
 
               {verse && (
-                <figure className="max-w-xl border-l border-stone-400/60 pl-6">
+                <figure className={noModel ? 'mx-auto max-w-xl' : 'max-w-xl border-l border-stone-400/60 pl-6'}>
                   <blockquote className="font-serif text-2xl leading-relaxed text-pretty text-stone-800 italic">
                     &ldquo;{verse.text}&rdquo;
                   </blockquote>
@@ -144,7 +147,7 @@ export default function BookShowcase({ verse }: { verse: DailyVerse | null }) {
 
               <button
                 onClick={open}
-                className="flex w-full max-w-sm items-center justify-center gap-2 rounded-md bg-stone-900 px-8 py-3.5 font-serif text-lg text-stone-50 shadow-[0_6px_16px_-6px_rgb(0_0_0/0.45)] transition-[background-color,transform] hover:bg-stone-800 active:translate-y-px"
+                className={`flex w-full max-w-sm items-center justify-center gap-2 rounded-md ${noModel ? 'mx-auto' : ''} bg-stone-900 px-8 py-3.5 font-serif text-lg text-stone-50 shadow-[0_6px_16px_-6px_rgb(0_0_0/0.45)] transition-[background-color,transform] hover:bg-stone-800 active:translate-y-px`}
               >
                 <BookOpen className="size-5" /> Open the Bible
               </button>
