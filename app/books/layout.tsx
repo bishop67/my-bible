@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { tocStyle } from "@/lib/toc-style";
 
 // The table of contents (page.tsx) is left exactly as written. This layout sets it like
 // the contents page of an old Bible: a Doré frontispiece on one side, the list on paper
@@ -32,15 +33,7 @@ export default function BooksLayout({ children }: { children: React.ReactNode })
           <h1 className="mt-4 font-display text-5xl leading-tight font-semibold sm:text-6xl">Contents</h1>
         </header>
 
-        <div
-          className={[
-            "font-serif",
-            "[&_h2]:font-display [&_h2]:border-stone-300 [&_h2]:text-stone-900",
-            "[&_h3]:font-serif [&_h3]:text-rose-900/70",
-            "[&_a]:border-stone-300 [&_a]:bg-white/50 [&_a]:text-base [&_a]:font-normal [&_a]:text-stone-800",
-            "[&_a:hover]:border-stone-400 [&_a:hover]:bg-amber-100/60",
-          ].join(" ")}
-        >
+        <div className={tocStyle}>
           {children}
         </div>
       </div>
