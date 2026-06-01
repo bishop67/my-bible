@@ -42,7 +42,7 @@ export default async function BiblePage({
       <MarginPlates arts={arts} book={bookData.book} chapter={chapterNum} />
       <div className="mx-auto max-w-2xl px-5 pt-[var(--line)] pb-[calc(var(--line)*3)] pl-10 text-stone-800 sm:pl-5">
         <nav className="flex h-[var(--line)] items-center justify-between text-base text-stone-500">
-          <Link href="/books" className="flex items-center gap-2 hover:text-stone-800">
+          <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-800">
             <ArrowLeft size={18} /> Contents
           </Link>
           <details className="relative">
