@@ -117,3 +117,40 @@ export function verseOfTheDay(now = new Date()): DailyVerse | null {
   const dateLabel = new Intl.DateTimeFormat('en-GB', { timeZone: TIME_ZONE, day: 'numeric', month: 'long' }).format(now);
   return { ...pool[h % pool.length], dateLabel };
 }
+
+export interface SearchHit {
+  slug: string;
+  title: string;
+  chapter: number;
+  verse: number;
+  text: string;
+}
+
+// Whole-word, case-insensitive search across every verse. The text is already in memory,
+// so a linear scan of ~37k verses is quick enough without an index.
+export function searchVerses(query: string, limit = 200): { hits: SearchHit[]; total: number } {
+  const words = query.toLowerCase().match(/[\p{L}\p{N}']+/gu) ?? [];
+  if (words.length === 0) return { hits: [], total: 0 };
+  const patterns = words.map(
+    (w) => new RegExp(String.raw`(?<![\p{L}\p{N}])` + w.replace(/'/g, "['’]") + String.raw`(?![\p{L}\p{N}])`, 'iu')
+  );
+  // Verses containing the exact phrase come first, then those that merely contain every word.
+  const phrase = words.length > 1 ? new RegExp(words.join(String.raw`[^\p{L}\p{N}]+`), 'iu') : null;
+  const exact: SearchHit[] = [];
+  const loose: SearchHit[] = [];
+  for (const b of getLibrary()) {
+    for (const c of loadBook(b.slug)!.chapters) {
+      for (const v of c.verses) {
+        if (!patterns.every((p) => p.test(v.text))) continue;
+        const hit = { slug: b.slug, title: b.title, chapter: c.chapter, verse: v.verse, text: v.text };
+        (phrase && !phrase.test(v.text) ? loose : exact).push(hit);
+      }
+    }
+  }
+  return { hits: [...exact, ...loose].slice(0, limit), total: exact.length + loose.length };
+}
+
+// Verse counts per chapter, for the book/chapter/verse picker.
+export function verseCounts(slug: string): number[] {
+  return loadBook(slug)?.chapters.map((c) => c.verses.length) ?? [];
+}
