@@ -11,11 +11,11 @@ export interface PickerBook {
   verses: number[]; // verse count for each chapter
 }
 
-const label = 'font-display text-sm tracking-[0.12em] text-[#f1dfb3] uppercase';
+const label = 'font-display text-sm tracking-[0.12em] text-[#e9e2d3] uppercase';
 const field =
-  'h-11 rounded-md border border-[#e8d9b5]/40 bg-[#fbf5e6] px-3 font-serif text-lg text-stone-900 shadow-inner focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c77a]';
+  'h-11 rounded-md border border-[#e8d9b5]/40 bg-[#fbf5e6] px-3 font-serif text-lg text-stone-900 shadow-inner focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d8c9a6]';
 const go =
-  'flex h-11 shrink-0 items-center justify-center rounded-md bg-[#3d0f0e] px-4 text-[#fbf5e6] shadow-[0_4px_10px_-4px_rgb(0_0_0/0.6)] transition-colors hover:bg-[#2a0908] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8c77a]';
+  'flex h-11 shrink-0 items-center justify-center rounded-md bg-[#1f1b17] px-4 text-[#fbf5e6] shadow-[0_4px_10px_-4px_rgb(0_0_0/0.6)] transition-colors hover:bg-[#0f0d0b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d8c9a6]';
 
 /** The bar under the header: search the text, or jump to a book, chapter and verse. */
 export default function PassagePicker({ books, query = '' }: { books: PickerBook[]; query?: string }) {
