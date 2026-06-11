@@ -1,15 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  /* Notebook paper, after the "Ruled" and "Ledger" textures in v0's Notebook library. */
   --paper: #fbf8f1;
   --background: var(--paper);
   --foreground: #1c1917;
-
-  --rule: #c9d6e3;
-  --margin-rule: #e3a1a1;
-  --line: 2rem;
-
 }
 
 @theme inline {
@@ -40,17 +34,6 @@ html {
 @keyframes ink-in {
   from { opacity: 0; filter: blur(6px); }
   to { opacity: 1; filter: blur(0); }
-}
-
-/* The margin rule sits just left of the centred reading column. */
-@utility paper-ruled {
-  --margin-x: max(1.25rem, calc(50% - 23rem));
-  background-color: var(--paper);
-  background-position: 0 var(--rule-offset, 0);
-  background-image:
-    linear-gradient(90deg, transparent calc(var(--margin-x) - 1px), var(--margin-rule) calc(var(--margin-x) - 1px), var(--margin-rule) var(--margin-x), transparent var(--margin-x)),
-    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px), var(--rule) var(--line)),
-    repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(0, 0, 0, 0.018) 11px, rgba(0, 0, 0, 0.018) 12px);
 }
 
 @media (prefers-reduced-motion: reduce) {
