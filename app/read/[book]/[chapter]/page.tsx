@@ -1,4 +1,4 @@
-import { SquareChevronRight, SquareChevronLeft, ArrowLeft, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ArrowLeft, ChevronDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { loadBook, type Verse } from '@/lib/bible';
@@ -37,16 +37,20 @@ export default async function BiblePage({
   const letter = (i: number) => String.fromCharCode(97 + (i % 26));
   let noteIndex = 0;
 
+  // Old Bibles open each chapter with a drop capital in place of the first verse number.
+  const [firstVerse] = chapterData.verses;
+
+  // The page and its pictures sit side by side as one centred group.
   return (
-    <main className="paper-ruled relative min-h-screen overflow-x-clip [--rule-offset:-0.4rem]">
-      <MarginPlates arts={arts} book={bookData.book} chapter={chapterNum} />
-      <div className="mx-auto max-w-2xl px-5 pt-[var(--line)] pb-[calc(var(--line)*3)] pl-10 text-stone-800 sm:pl-5">
-        <nav className="flex h-[var(--line)] items-center justify-between text-base text-stone-500">
-          <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-800">
+    <main className="flex min-h-screen items-start justify-center gap-10 overflow-x-clip bg-[var(--paper)] px-3 py-6 sm:px-6 sm:py-14">
+      <article className="w-full max-w-[52rem] min-w-0 border-[3px] border-double border-stone-800 bg-[#fdfbf6] px-6 pt-8 pb-10 text-stone-900 sm:px-12 sm:pt-10 sm:pb-14">
+
+        <nav className="relative flex items-center justify-between font-serif text-base text-stone-600">
+          <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-900">
             <ArrowLeft size={18} /> Contents
           </Link>
           <details className="relative">
-            <summary className="cursor-pointer list-none hover:text-stone-800">
+            <summary className="cursor-pointer list-none hover:text-stone-900">
               <span className="flex items-center gap-1">
                 Chapter {chapterNum} of {totalChapter} <ChevronDown size={14} />
               </span>
@@ -56,7 +60,7 @@ export default async function BiblePage({
                 <Link
                   key={c.chapter}
                   href={`/read/${book}/${c.chapter}`}
-                  className={`rounded py-1 text-center tabular-nums hover:bg-stone-200 ${c.chapter === chapterNum ? 'bg-stone-800 text-white hover:bg-stone-700' : ''}`}
+                  className={`rounded py-1 text-center tabular-nums hover:bg-stone-200 ${c.chapter === chapterNum ? 'bg-stone-800 text-white hover:bg-stone-800' : ''}`}
                 >
                   {c.chapter}
                 </Link>
@@ -65,53 +69,61 @@ export default async function BiblePage({
           </details>
         </nav>
 
-        <header className="mt-[var(--line)]">
-          <h1 className="font-display text-5xl leading-[calc(var(--line)*2)] font-semibold text-balance">
+        <header className="mt-10 text-center">
+          <h1 className="font-display text-5xl font-semibold text-stone-900 [font-variant-caps:small-caps] sm:text-6xl">
             {bookData.book}
           </h1>
-          <p className="font-serif text-xl leading-[var(--line)] text-stone-500 italic">
+          <p className="mt-3 font-display text-lg tracking-[0.25em] text-stone-700 uppercase">
             Chapter {chapterData.chapter}
           </p>
         </header>
 
-        <div className="mt-[var(--line)] font-serif text-xl leading-[var(--line)]">
-          {paragraphs.map((verses) => (
+        <div className="mt-10 font-serif text-xl leading-9 text-stone-900">
+          {paragraphs.map((verses, pi) => (
             <div key={verses[0].verse}>
-            {arts
-              .filter((a) => a.from >= verses[0].verse && a.from <= verses[verses.length - 1].verse)
-              .map((a) => (
-                <InlinePlate key={a.src} art={a} book={bookData.book} chapter={chapterNum} />
-              ))}
-            <p className="mb-[var(--line)] indent-6">
-              {verses.map((verse) => (
-                <span
-                  key={verse.verse}
-                  id={`v${verse.verse}`}
-                  data-verse={verse.verse}
-                  className="scroll-mt-24 rounded-sm box-decoration-clone transition-colors target:bg-amber-200/60"
-                >
-                  <sup className="mr-1 font-sans text-[0.6em] leading-none font-semibold text-rose-700/80">{verse.verse}</sup>
-                  {verse.text}
-                  {verse.notes.map(() => (
-                    <sup key={noteIndex} className="ml-0.5 font-sans text-[0.6em] leading-none text-sky-700/80 italic">
-                      {letter(noteIndex++)}
-                    </sup>
-                  ))}{' '}
-                </span>
-              ))}
-            </p>
+              {arts
+                .filter((a) => a.from >= verses[0].verse && a.from <= verses[verses.length - 1].verse)
+                .map((a) => (
+                  <InlinePlate key={a.src} art={a} book={bookData.book} chapter={chapterNum} />
+                ))}
+              <p
+                className={
+                  pi === 0
+                    ? 'mb-5 first-letter:float-left first-letter:mt-1 first-letter:mr-2 first-letter:font-display first-letter:text-[4.2rem] first-letter:leading-[0.8] first-letter:text-stone-900'
+                    : 'mb-5 indent-6'
+                }
+              >
+                {verses.map((verse) => (
+                  <span
+                    key={verse.verse}
+                    id={`v${verse.verse}`}
+                    data-verse={verse.verse}
+                    className="scroll-mt-24 rounded-sm box-decoration-clone transition-colors target:bg-amber-200/60"
+                  >
+                    {verse !== firstVerse && (
+                      <sup className="mr-1 font-sans text-[0.6em] leading-none font-semibold text-stone-800">{verse.verse}</sup>
+                    )}
+                    {verse.text}
+                    {verse.notes.map(() => (
+                      <sup key={noteIndex} className="ml-0.5 font-sans text-[0.6em] leading-none text-stone-500 italic">
+                        {letter(noteIndex++)}
+                      </sup>
+                    ))}{' '}
+                  </span>
+                ))}
+              </p>
             </div>
           ))}
         </div>
 
         {notes.length > 0 && (
-          <aside className="font-serif text-base leading-[var(--line)] text-stone-600">
-            <h2 className="font-display text-lg leading-[var(--line)] font-semibold text-stone-700">Notes</h2>
-            <ol>
+          <aside className="mt-8 border-t border-stone-300 pt-5 font-serif text-base leading-7 text-stone-600">
+            <h2 className="font-display text-sm tracking-[0.2em] text-stone-700 uppercase">Notes</h2>
+            <ol className="mt-2">
               {notes.map((n, i) => (
                 <li key={i}>
-                  <span className="mr-2 font-sans text-xs text-sky-700/80 italic">{letter(i)}</span>
-                  <a href={`#v${n.verse}`} className="mr-1 tabular-nums text-stone-500 hover:text-stone-800">
+                  <span className="mr-2 font-sans text-xs text-stone-500 italic">{letter(i)}</span>
+                  <a href={`#v${n.verse}`} className="mr-1 tabular-nums text-stone-500 hover:text-stone-900">
                     v{n.verse}
                   </a>{' '}
                   {n.text}
@@ -121,24 +133,26 @@ export default async function BiblePage({
           </aside>
         )}
 
-        <div className="grid h-[calc(var(--line)*2)] grid-cols-3 items-center text-base">
+        <div className="mt-8 grid grid-cols-3 items-center border-t border-stone-300 pt-5 font-serif text-base text-stone-600">
           {prevChapter ? (
-            <Link href={`/read/${book}/${prevChapter}`} className="flex items-center gap-2 justify-self-start rounded px-3 py-1 hover:bg-stone-800/5">
-              <SquareChevronLeft size={20} /> Chapter {prevChapter}
+            <Link href={`/read/${book}/${prevChapter}`} className="flex items-center gap-2 justify-self-start rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
+              <ChevronLeft size={18} /> Chapter {prevChapter}
             </Link>
           ) : <div />}
 
-          <span className="text-center text-stone-400 tabular-nums">
+          <span className="text-center tabular-nums text-stone-400">
             {chapterNum} / {totalChapter}
           </span>
 
           {nextChapter ? (
-            <Link href={`/read/${book}/${nextChapter}`} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5">
-              Chapter {nextChapter} <SquareChevronRight size={20} />
+            <Link href={`/read/${book}/${nextChapter}`} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
+              Chapter {nextChapter} <ChevronRight size={18} />
             </Link>
           ) : <div />}
         </div>
-      </div>
+      </article>
+
+      <MarginPlates arts={arts} book={bookData.book} chapter={chapterNum} />
     </main>
   );
 }
