@@ -3,16 +3,11 @@
 import { useEffect, useState } from 'react';
 import type { Artwork } from '@/lib/art';
 
-// In the text column the plate snaps to the ruled lines: 10 lines of picture, 2 of caption,
-// and a line's worth of padding, so the verses after it still sit on the rules.
-function Plate({ art, reference, ruled = false }: { art: Artwork; reference: string; ruled?: boolean }) {
+// A print taped beside the page, with its caption.
+function Plate({ art, reference }: { art: Artwork; reference: string }) {
   return (
-    <figure
-      className={`relative -rotate-[0.6deg] bg-white shadow-[0_10px_24px_-12px_rgb(28_25_23/0.45)] ${
-        ruled ? 'px-3 py-[calc(var(--line)/2)]' : 'p-3 pb-4'
-      }`}
-    >
-      {/* Two strips of tape holding the print into the notebook. */}
+    <figure className="relative -rotate-[0.6deg] bg-white p-3 pb-4 shadow-[0_10px_24px_-12px_rgb(28_25_23/0.45)]">
+      {/* Two strips of tape holding the print down. */}
       <span aria-hidden className="absolute -top-2.5 left-6 h-5 w-16 -rotate-6 bg-amber-100/70 shadow-sm" />
       <span aria-hidden className="absolute -top-2.5 right-6 h-5 w-16 rotate-6 bg-amber-100/70 shadow-sm" />
       {/* eslint-disable-next-line @next/next/no-img-element -- remote Commons thumbnails, already sized */}
@@ -23,13 +18,11 @@ function Plate({ art, reference, ruled = false }: { art: Artwork; reference: str
         alt={`${art.title}, by ${art.artist}`}
         loading="lazy"
         decoding="async"
-        className={ruled ? 'block h-[calc(var(--line)*10)] w-full object-contain' : 'block max-h-[65vh] w-full object-contain'}
+        className="block max-h-[65vh] w-full object-contain"
       />
-      <figcaption
-        className={`font-serif text-stone-700 ${ruled ? 'h-[calc(var(--line)*2)] overflow-hidden leading-[var(--line)]' : 'mt-3 leading-snug'}`}
-      >
-        <span className="block truncate text-lg italic">{art.title}</span>
-        <span className="block truncate text-sm text-stone-500">
+      <figcaption className="mt-3 font-serif leading-snug text-stone-700">
+        <span className="block text-lg italic">{art.title}</span>
+        <span className="block text-sm text-stone-500">
           {art.artist}, {art.year} ·{' '}
           <a href={`#v${art.from}`} className="underline decoration-stone-300 underline-offset-2 hover:text-stone-800">
             {reference}
@@ -52,17 +45,17 @@ function Plate({ art, reference, ruled = false }: { art: Artwork; reference: str
 const refFor = (art: Artwork, book: string, chapter: number) =>
   `${book} ${chapter}:${art.from}${art.to > art.from ? `–${art.to}` : ''}`;
 
-/** Inline plate, shown before the paragraph where its passage begins (narrow screens). */
+/** Inline plate, shown before the paragraph where its passage begins (narrower screens). */
 export function InlinePlate({ art, book, chapter }: { art: Artwork; book: string; chapter: number }) {
   return (
-    <div className="my-[var(--line)] xl:hidden">
-      <Plate art={art} reference={refFor(art, book, chapter)} ruled />
+    <div className="mx-auto my-8 max-w-md xl:hidden">
+      <Plate art={art} reference={refFor(art, book, chapter)} />
     </div>
   );
 }
 
 /**
- * Sticky plate in the right margin (wide screens). It follows the reader: whichever
+ * Column of pictures beside the page (wide screens). It follows the reader: whichever
  * passage is at the top of the viewport decides which picture is shown.
  */
 export function MarginPlates({ arts, book, chapter }: { arts: Artwork[]; book: string; chapter: number }) {
@@ -98,8 +91,8 @@ export function MarginPlates({ arts, book, chapter }: { arts: Artwork[]; book: s
   if (arts.length === 0) return null;
 
   return (
-    <aside className="absolute top-0 bottom-0 left-[calc(50%+22.5rem)] hidden w-[min(22rem,calc(50%-25.5rem))] xl:block">
-      <div className="sticky top-[calc(var(--line)*2)] grid">
+    <aside className="hidden w-80 shrink-0 xl:block 2xl:w-96">
+      <div className="sticky top-10 grid">
         {arts.map((art, i) => (
           <div
             key={art.src}
