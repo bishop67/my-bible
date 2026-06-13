@@ -91,7 +91,7 @@ export function MarginPlates({ arts, book, chapter }: { arts: Artwork[]; book: s
   if (arts.length === 0) return null;
 
   return (
-    <aside className="hidden w-80 shrink-0 xl:block 2xl:w-96">
+    <aside className="hidden w-80 shrink-0 self-stretch xl:block 2xl:w-96">
       <div className="sticky top-10 grid">
         {arts.map((art, i) => (
           <div
