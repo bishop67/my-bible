@@ -38,7 +38,7 @@ export default async function SearchPage({ searchParams }: Props) {
       <SiteHeader compact query={q} />
 
       <main className="mx-auto max-w-4xl px-6 py-12">
-        <h1 className="border-b border-stone-300 pb-2 font-display text-3xl text-[#4a1513] [font-variant-caps:small-caps]">
+        <h1 className="border-b border-stone-300 pb-2 font-display text-3xl text-[#3b2416] [font-variant-caps:small-caps]">
           {q ? <>Results for &ldquo;{q}&rdquo;</> : 'Search the Bible'}
         </h1>
         <p className="mt-3 font-serif text-lg text-stone-600 italic">
@@ -56,7 +56,7 @@ export default async function SearchPage({ searchParams }: Props) {
             <li key={`${h.slug}-${h.chapter}-${h.verse}`}>
               <Link
                 href={`/read/${h.slug}/${h.chapter}#v${h.verse}`}
-                className="font-display text-lg text-[#8a2a22] [font-variant-caps:small-caps] hover:text-[#4a1513] hover:underline hover:underline-offset-4"
+                className="font-display text-lg text-[#8a5a2b] [font-variant-caps:small-caps] hover:text-[#3b2416] hover:underline hover:underline-offset-4"
               >
                 {h.title} {h.chapter}:{h.verse}
               </Link>
