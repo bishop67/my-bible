@@ -21,7 +21,7 @@ function resized(it, width) {
 }
 
 const art = [];
-const add = (it, ref, title, artist, year) => {
+const add = (it, ref, title, artist, year, credit) => {
   if (!valid(ref) || !it.thumb) return;
   const last = size[ref.slug][ref.chapter];
   art.push({
@@ -34,6 +34,7 @@ const add = (it, ref, title, artist, year) => {
     year,
     ...resized(it, artist.includes('Doré') ? 1280 : 960),
     page: it.page.split("?")[0],
+    ...(credit ? { credit } : {}),
   });
 };
 
@@ -62,6 +63,14 @@ for (const it of read('cache/schnorr.refs.json')) {
     ref = { slug, chapter: +chapter, from, to };
   }
   if (ref) add(it, ref, titles[n] ?? `Plate ${+n}`, 'Julius Schnorr von Carolsfeld', 1860);
+}
+
+// Hand-picked works for books the two series barely cover (mostly the Apocrypha); see extra.json.
+for (const it of read('cache/extra.json')) {
+  const [slug, cv] = it.ref.split(' ');
+  const [chapter, range] = cv.split(':');
+  const [from, to] = range.split('-').map(Number);
+  add(it, { slug, chapter: +chapter, from, to }, it.title, it.artist, it.year, it.credit);
 }
 
 // Group by chapter, in reading order, dropping the same picture listed twice.
