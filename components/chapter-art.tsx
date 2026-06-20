@@ -37,6 +37,7 @@ function Plate({ art, reference }: { art: Artwork; reference: string }) {
             source
           </a>
         </span>
+        {art.credit && <span className="mt-0.5 block text-xs text-stone-500">{art.credit}</span>}
       </figcaption>
     </figure>
   );
