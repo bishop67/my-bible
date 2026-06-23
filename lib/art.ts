@@ -12,6 +12,7 @@ export interface Artwork {
   width: number;
   height: number;
   page: string;
+  credit?: string; // author and licence, for works that are openly licensed rather than public domain
 }
 
 const index = art as Record<string, Record<string, Artwork[]>>;
