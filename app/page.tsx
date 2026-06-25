@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SiteHeader from '@/components/site-header';
+import SiteFooter from '@/components/site-footer';
 import Contents from '@/app/books/page';
 import { verseOfTheDay } from '@/lib/bible';
 import { tocStyle } from '@/lib/toc-style';
@@ -44,6 +45,7 @@ export default function Home() {
       <section id="contents" className={`scroll-mt-4 ${tocStyle}`}>
         <Contents />
       </section>
+      <SiteFooter />
     </div>
   );
 }
