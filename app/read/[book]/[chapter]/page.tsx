@@ -1,9 +1,11 @@
-import { ChevronRight, ChevronLeft, ArrowLeft, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ArrowLeft, ChevronDown, Bookmark } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { loadBook, type Verse } from '@/lib/bible';
+import { allSlugs, loadBook, type Verse } from '@/lib/bible';
 import { chapterArt } from '@/lib/art';
 import { InlinePlate, MarginPlates } from '@/components/chapter-art';
+import VerseTools from '@/components/verse-tools';
+import ContinueReading from '@/components/continue-reading';
 
 export default async function BiblePage({
   params,
@@ -22,6 +24,24 @@ export default async function BiblePage({
 
   const prevChapter = chapterNum > 1 ? chapterNum - 1 : null;
   const nextChapter = chapterNum < totalChapter ? chapterNum + 1 : null;
+
+  // After the last chapter, carry on into the next book in contents order.
+  const slugs = allSlugs();
+  const nextBook = nextChapter ? null : slugs[slugs.indexOf(book) + 1];
+  const next = nextChapter
+    ? { href: `/read/${book}/${nextChapter}`, label: `${bookData.book} ${nextChapter}` }
+    : nextBook
+      ? { href: `/read/${nextBook}/1`, label: `${loadBook(nextBook)!.book} 1` }
+      : null;
+
+  // Scrolling back past the top lands at the end of the previous chapter, as if the page were continuous.
+  const prevBook = prevChapter ? null : slugs[slugs.indexOf(book) - 1];
+  const prevBookData = prevBook ? loadBook(prevBook) : null;
+  const prev = prevChapter
+    ? { href: `/read/${book}/${prevChapter}#chapter-end`, label: `${bookData.book} ${prevChapter}` }
+    : prevBookData
+      ? { href: `/read/${prevBook}/${prevBookData.chapters.length}#chapter-end`, label: `${prevBookData.book} ${prevBookData.chapters.length}` }
+      : null;
 
   // Group verses into the paragraphs marked in the source text.
   const paragraphs = chapterData.verses.reduce<Verse[][]>((acc, verse) => {
@@ -46,9 +66,14 @@ export default async function BiblePage({
       <article className="w-full max-w-[52rem] min-w-0 border-[3px] border-double border-stone-800 bg-[#fdfbf6] px-6 pt-8 pb-10 text-stone-900 sm:px-12 sm:pt-10 sm:pb-14">
 
         <nav className="relative flex items-center justify-between font-serif text-base text-stone-600">
-          <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-900">
-            <ArrowLeft size={18} /> Contents
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-900">
+              <ArrowLeft size={18} /> Contents
+            </Link>
+            <Link href="/highlights" className="flex items-center gap-1.5 hover:text-stone-900">
+              <Bookmark size={16} /> Highlights
+            </Link>
+          </div>
           <details className="relative">
             <summary className="cursor-pointer list-none hover:text-stone-900">
               <span className="flex items-center gap-1">
@@ -144,15 +169,23 @@ export default async function BiblePage({
             {chapterNum} / {totalChapter}
           </span>
 
-          {nextChapter ? (
-            <Link href={`/read/${book}/${nextChapter}`} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
-              Chapter {nextChapter} <ChevronRight size={18} />
+          {next ? (
+            <Link href={next.href} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
+              {nextChapter ? `Chapter ${nextChapter}` : next.label} <ChevronRight size={18} />
             </Link>
           ) : <div />}
         </div>
+        <div id="chapter-end" aria-hidden />
       </article>
 
       <MarginPlates arts={arts} book={bookData.book} chapter={chapterNum} />
+      <ContinueReading key={`${book}-${chapterNum}`} next={next} prev={prev} />
+      <VerseTools
+        slug={book}
+        book={bookData.book}
+        chapter={chapterNum}
+        verses={chapterData.verses.map((v) => ({ verse: v.verse, text: v.text }))}
+      />
     </main>
   );
 }
