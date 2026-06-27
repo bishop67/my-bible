@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import SiteHeader from '@/components/site-header';
+import SiteFooter from '@/components/site-footer';
 import { searchVerses } from '@/lib/bible';
 
 type Props = { searchParams: Promise<{ q?: string }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q ? `“${q}” — KJV + Apocrypha` : 'Search — KJV + Apocrypha' };
+  return { title: q ? `“${q}” — Holy Bible` : 'Search — Holy Bible' };
 }
 
 // Mark every query word inside a verse, whole words only.
@@ -65,6 +66,7 @@ export default async function SearchPage({ searchParams }: Props) {
           ))}
         </ol>
       </main>
+      <SiteFooter />
     </div>
   );
 }
