@@ -18,12 +18,17 @@ export default function SiteHeader({ query, compact = false }: { query?: string;
       <nav className="relative border-b border-[#c8a45c]/60 bg-[#3b2416] bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.08),transparent_60%),repeating-linear-gradient(90deg,rgb(0_0_0/0.06)_0_2px,transparent_2px_6px)] shadow-[inset_0_-6px_12px_-6px_rgb(0_0_0/0.5)]">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-center px-6 sm:justify-between">
           <Link href="/" className="hidden font-display text-lg tracking-wide text-[#e6c77f] [font-variant-caps:small-caps] hover:text-white sm:block">
-            KJV + Apocrypha
+            Holy Bible
           </Link>
           <ul className="flex gap-6 font-display text-sm tracking-[0.12em] text-[#e6c77f] uppercase">
             <li>
               <Link href="/#verse-of-the-day" className="hover:text-white">
                 Verse of the day
+              </Link>
+            </li>
+            <li>
+              <Link href="/highlights" className="hover:text-white">
+                My highlights
               </Link>
             </li>
             <li>
@@ -46,10 +51,10 @@ export default function SiteHeader({ query, compact = false }: { query?: string;
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_80%_at_50%_55%,rgb(251_243_224/0.92),rgb(251_243_224/0.55)_55%,rgb(90_50_20/0.25))]" />
           <div className="mx-auto max-w-6xl px-6 py-14 text-center md:py-20">
             <h1 className="font-display text-5xl leading-none font-semibold text-[#3b2416] [font-variant-caps:small-caps] sm:text-7xl">
-              KJV + Apocrypha
+              Holy Bible
             </h1>
             <p className="mt-4 font-serif text-lg tracking-[0.2em] text-[#6b4a2e] [font-variant-caps:small-caps] sm:text-2xl">
-              The King James Version, with the Apocrypha
+              King James Version · with the Apocrypha
             </p>
           </div>
         </div>
