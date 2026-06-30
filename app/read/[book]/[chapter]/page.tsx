@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronLeft, ArrowLeft, ChevronDown, Bookmark } from 'lucide-react';
+import { SquareChevronRight, SquareChevronLeft, ArrowLeft, ChevronDown, Bookmark } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { allSlugs, loadBook, type Verse } from '@/lib/bible';
@@ -159,9 +159,9 @@ export default async function BiblePage({
         )}
 
         <div className="mt-8 grid grid-cols-3 items-center border-t border-stone-300 pt-5 font-serif text-base text-stone-600">
-          {prevChapter ? (
-            <Link href={`/read/${book}/${prevChapter}`} className="flex items-center gap-2 justify-self-start rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
-              <ChevronLeft size={18} /> Chapter {prevChapter}
+          {prev ? (
+            <Link href={prev.href.replace('#chapter-end', '')} className="flex items-center gap-2 rounded border border-stone-300 px-4 py-2 text-sm transition-colors hover:bg-stone-100 hover:text-stone-900 justify-self-start">
+              <SquareChevronLeft size={24} /> {prevChapter ? `Chapter ${prevChapter}` : prev.label}
             </Link>
           ) : <div />}
 
@@ -170,8 +170,8 @@ export default async function BiblePage({
           </span>
 
           {next ? (
-            <Link href={next.href} className="flex items-center gap-2 justify-self-end rounded px-3 py-1 hover:bg-stone-800/5 hover:text-stone-900">
-              {nextChapter ? `Chapter ${nextChapter}` : next.label} <ChevronRight size={18} />
+            <Link href={next.href} className="flex items-center gap-2 rounded border border-stone-300 px-4 py-2 text-sm transition-colors hover:bg-stone-100 hover:text-stone-900 justify-self-end">
+              {nextChapter ? `Chapter ${nextChapter}` : next.label} <SquareChevronRight size={24} />
             </Link>
           ) : <div />}
         </div>
