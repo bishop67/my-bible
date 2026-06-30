@@ -6,6 +6,7 @@ import { chapterArt } from '@/lib/art';
 import { InlinePlate, MarginPlates } from '@/components/chapter-art';
 import VerseTools from '@/components/verse-tools';
 import ContinueReading from '@/components/continue-reading';
+import SiteFooter from '@/components/site-footer';
 
 export default async function BiblePage({
   params,
@@ -62,6 +63,7 @@ export default async function BiblePage({
 
   // The page and its pictures sit side by side as one centred group.
   return (
+    <>
     <main className="flex min-h-screen items-start justify-center gap-10 overflow-x-clip bg-[var(--paper)] px-3 py-6 sm:px-6 sm:py-14">
       <article className="w-full max-w-[52rem] min-w-0 border-[3px] border-double border-stone-800 bg-[#fdfbf6] px-6 pt-8 pb-10 text-stone-900 sm:px-12 sm:pt-10 sm:pb-14">
 
@@ -187,5 +189,7 @@ export default async function BiblePage({
         verses={chapterData.verses.map((v) => ({ verse: v.verse, text: v.text }))}
       />
     </main>
+    <SiteFooter />
+    </>
   );
 }

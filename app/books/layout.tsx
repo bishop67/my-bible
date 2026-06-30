@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { tocStyle } from "@/lib/toc-style";
+import SiteFooter from "@/components/site-footer";
 
 // The table of contents (page.tsx) is left exactly as written. This layout sets it like
 // the contents page of an old Bible: a Doré frontispiece on one side, the list on paper
@@ -8,6 +9,7 @@ import { tocStyle } from "@/lib/toc-style";
 // only restyle the page's own elements into the site's fonts and colours.
 export default function BooksLayout({ children }: { children: React.ReactNode }) {
   return (
+    <>
     <div className="min-h-screen bg-[var(--paper)] text-stone-900 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <aside className="p-4 lg:sticky lg:top-0 lg:h-screen lg:p-8">
         <figure className="flex h-64 flex-col border border-stone-400/70 bg-[#f4efe4] p-2 shadow-[0_12px_30px_-18px_rgb(28_25_23/0.6)] sm:h-80 lg:h-full lg:p-3">
@@ -38,5 +40,7 @@ export default function BooksLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
     </div>
+    <SiteFooter />
+    </>
   );
 }
