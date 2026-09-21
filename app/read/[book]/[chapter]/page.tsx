@@ -1,12 +1,23 @@
 import { SquareChevronRight, SquareChevronLeft, ArrowLeft, ChevronDown, Bookmark } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { allSlugs, loadBook, type Verse } from '@/lib/bible';
 import { chapterArt } from '@/lib/art';
 import { InlinePlate, MarginPlates } from '@/components/chapter-art';
 import VerseTools from '@/components/verse-tools';
 import ContinueReading from '@/components/continue-reading';
 import SiteFooter from '@/components/site-footer';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ book: string; chapter: string }>;
+}): Promise<Metadata> {
+  const { book, chapter } = await params;
+  const data = loadBook(book);
+  return { title: data ? `${data.book} ${parseInt(chapter)}` : 'Holy Bible' };
+}
 
 export default async function BiblePage({
   params,

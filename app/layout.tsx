@@ -13,7 +13,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Holy Bible — King James Version with the Apocrypha",
+  title: "Holy Bible",
   description: "A clean, reader-friendly King James Version Bible with the Apocrypha.",
 };
 

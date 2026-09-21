@@ -8,7 +8,7 @@ type Props = { searchParams: Promise<{ q?: string }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q ? `“${q}” — Holy Bible` : 'Search — Holy Bible' };
+  return { title: q ? `“${q}”` : 'Search' };
 }
 
 // Mark every query word inside a verse, whole words only.

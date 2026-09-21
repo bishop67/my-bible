@@ -4,7 +4,7 @@ import HighlightsList from '@/components/highlights-list';
 import SiteFooter from '@/components/site-footer';
 import { allSlugs } from '@/lib/bible';
 
-export const metadata: Metadata = { title: 'My highlights — Holy Bible' };
+export const metadata: Metadata = { title: 'Highlights' };
 
 export default function HighlightsPage() {
   return (
