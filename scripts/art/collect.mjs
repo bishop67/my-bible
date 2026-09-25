@@ -1,4 +1,3 @@
-// Collect file titles + English/other descriptions for Commons categories (one level of subcats).
 import fs from 'fs';
 const UA = { 'User-Agent': 'my-bible-art-index/0.1 (https://github.com/bishop67/my-bible)' };
 const api = async (params) => {

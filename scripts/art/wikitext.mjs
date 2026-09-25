@@ -1,4 +1,3 @@
-// Fetch raw wikitext for the files in a collected JSON, to mine references in any language.
 import fs from 'fs';
 const UA = { 'User-Agent': 'my-bible-art-index/0.1 (https://github.com/bishop67/my-bible)' };
 const [, , file] = process.argv;

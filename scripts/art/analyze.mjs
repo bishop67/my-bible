@@ -9,7 +9,6 @@ for (const f of fs.readdirSync(BIBLE)) {
 }
 const valid = (r) => size[r.slug]?.[r.chapter] && (!r.from || r.from <= size[r.slug][r.chapter]);
 
-// Pull one language's text out of a Commons {{Information}} description.
 const block = (wt, lang) => {
   const m = (wt || '').match(new RegExp('\\{\\{' + lang + '\\|(?:1=)?([^}]*)\\}\\}'));
   return m ? m[1] : '';

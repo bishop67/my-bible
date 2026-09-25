@@ -1,4 +1,3 @@
-// Merge the collected Commons sets into my-bible/data/art.json: { [slug]: { [chapter]: Art[] } }.
 import fs from 'fs';
 
 const read = (f) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : []);
@@ -10,8 +9,6 @@ for (const f of fs.readdirSync(BIBLE)) {
 }
 const valid = (r) => size[r.slug]?.[r.chapter] && (!r.from || r.from <= size[r.slug][r.chapter]);
 
-// Wikimedia serves resized copies at /thumb/<hash>/<name>/<width>px-<name>; ask for a
-// reading-sized one rather than the multi-megabyte original.
 function resized(it, width) {
   const w = Math.min(width, it.width);
   const original = it.thumb.split('?')[0].replace(/\/thumb(\/.+?)\/[^/]+$/, '$1');
@@ -38,7 +35,6 @@ const add = (it, ref, title, artist, year, credit) => {
   });
 };
 
-// Doré: the numbered plates of the 1866 English Bible; title comes from the file name.
 for (const it of read('cache/dore.refs.json')) {
   if (!it.category.includes("Doré's English Bible") || !it.refs.length) continue;
   const m = it.title.match(/^File:\d+[A-Z]?\.\s*(.+)\.\w+$/);
@@ -46,7 +42,6 @@ for (const it of read('cache/dore.refs.json')) {
   add(it, it.refs[0], m[1], 'Gustave Doré', 1866);
 }
 
-// Schnorr: 240 woodcuts of Die Bibel in Bildern; references from Commons, else the hand map.
 const gallery = Object.values(read('cache/gallery.json').query.pages)[0].revisions[0].slots.main['*'];
 const titles = Object.fromEntries(
   [...gallery.matchAll(/Bibel in Bildern 1860 (\d+)\.png\|(.+)/g)].map((m) => [m[1], m[2].trim()])
@@ -65,7 +60,6 @@ for (const it of read('cache/schnorr.refs.json')) {
   if (ref) add(it, ref, titles[n] ?? `Plate ${+n}`, 'Julius Schnorr von Carolsfeld', 1860);
 }
 
-// Hand-picked works for books the two series barely cover (mostly the Apocrypha); see extra.json.
 for (const it of read('cache/extra.json')) {
   const [slug, cv] = it.ref.split(' ');
   const [chapter, range] = cv.split(':');
@@ -73,7 +67,6 @@ for (const it of read('cache/extra.json')) {
   add(it, { slug, chapter: +chapter, from, to }, it.title, it.artist, it.year, it.credit);
 }
 
-// Group by chapter, in reading order, dropping the same picture listed twice.
 const out = {};
 const seen = new Set();
 for (const a of art.sort((x, y) => x.from - y.from)) {

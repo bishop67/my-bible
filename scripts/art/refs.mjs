@@ -1,5 +1,3 @@
-// Parse Bible references like "Gen. 28:10-15", "2Kings 6:18", "I Kings 18", "Gn 41:46-57" (pt)
-// into { slug, chapter, from, to } using the slugs in my-bible's manifest.
 const EN_ALIASES = {
   genesis: ['gen', 'gn', 'ge'], exodus: ['exod', 'ex', 'exo'], leviticus: ['lev', 'lv'], numbers: ['num', 'nm', 'nb'],
   deuteronomy: ['deut', 'dt', 'deu'], joshua: ['josh', 'jos'], judges: ['judg', 'jdg', 'jgs', 'jud'], ruth: ['ru'],
@@ -22,7 +20,6 @@ const EN_ALIASES = {
   jude: [], revelation: ['rev', 'apoc', 'apocalypse', 'revelations'],
 };
 
-// Portuguese (many Schnorr woodcut pages). Some short forms clash with English: "Jn" is Jonah here.
 const PT_ALIASES = {
   genesis: ['gn'], exodus: ['êx', 'ex'], leviticus: ['lv'], numbers: ['nm'], deuteronomy: ['dt'], joshua: ['js'], judges: ['jz'],
   ruth: ['rt'], '1-samuel': ['1 sm'], '2-samuel': ['2 sm'], '1-kings': ['1 rs'], '2-kings': ['2 rs'], '1-chronicles': ['1 cr'],
@@ -34,7 +31,6 @@ const PT_ALIASES = {
   matthew: ['mt'], mark: ['mc'], luke: ['lc'], john: ['jo', 'joão'], acts: ['at'], romans: ['rm'], revelation: ['ap'],
 };
 
-// "2Kings", "2 Kings" and "II Kings" all normalise to "2 kings".
 const norm = (s) =>
   s.toLowerCase().replace(/\./g, '').replace(/\s+/g, ' ').trim()
     .replace(/^(iii|ii|i) (?=\p{L})/u, (m, r) => `${r.length} `)
@@ -48,7 +44,6 @@ function build(aliases) {
     table.set(norm(slug.replace(/-/g, ' ')), slug);
     for (const a of list) table.set(norm(a), slug);
   }
-  // Longest first so "1 kings" wins over "kings" and "song of songs" over "song".
   const raw = Object.values(aliases).flat().map((a) => a.replace(/\./g, ''));
   const names = [...new Set([...table.keys(), ...raw])]
     .sort((a, b) => b.length - a.length)
@@ -61,7 +56,6 @@ function build(aliases) {
 }
 
 const EN = build(EN_ALIASES);
-// Portuguese pages sometimes spell books out in full, so keep the full English names too.
 const PT = build({ ...Object.fromEntries(Object.keys(EN_ALIASES).map((k) => [k, []])), ...PT_ALIASES });
 
 const LOOKALIKE = { М: 'M', а: 'a', с: 'c', С: 'C', е: 'e', о: 'o', К: 'K' };
@@ -69,7 +63,6 @@ const LOOKALIKE = { М: 'M', а: 'a', с: 'c', С: 'C', е: 'e', о: 'o', К: 'K
 export function parseRefs(text, lang = 'en') {
   const { table, re } = lang === 'pt' ? PT : EN;
   const out = [];
-  // Cyrillic look-alikes turn up in some descriptions ("2 Масс.").
   const clean = (text || '').replace(/[МасСеоК]/g, (c) => LOOKALIKE[c]);
   for (const m of clean.matchAll(re)) {
     const slug = table.get(norm(m[1]));
@@ -77,7 +70,6 @@ export function parseRefs(text, lang = 'en') {
     const chapter = +m[2];
     const from = m[3] ? +m[3] : null;
     const to = m[4] ? +m[4] : from;
-    // Catholic numbering folds two Apocrypha books into Daniel; the KJV prints them separately.
     if (slug === 'daniel' && chapter === 13) out.push({ slug: 'susanna', chapter: 1, from, to, raw: m[0] });
     else if (slug === 'daniel' && chapter === 14) out.push({ slug: 'bel-and-the-dragon', chapter: 1, from, to, raw: m[0] });
     else out.push({ slug, chapter, from, to, raw: m[0] });

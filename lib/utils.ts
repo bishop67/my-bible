@@ -1,7 +1,5 @@
-// lib/utils.ts
-export const formatTitle = (slug: string): string => {
-  return slug
+export const formatTitle = (slug: string) =>
+  slug
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-};

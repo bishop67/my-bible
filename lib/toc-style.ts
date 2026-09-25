@@ -1,6 +1,3 @@
-// The user's table of contents (app/books/page.tsx) is never edited. Wherever it is shown,
-// it is wrapped in these descendant rules, which only restyle its own elements into the
-// site's fonts and colours.
 export const tocStyle = [
   'font-serif',
   '[&_h2]:font-display [&_h2]:border-stone-300 [&_h2]:text-[#3b2416]',
