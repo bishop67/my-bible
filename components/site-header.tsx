@@ -1,48 +1,35 @@
 import Link from 'next/link';
-import { getLibrary, verseCounts } from '@/lib/bible';
+import { allBooks } from '@/lib/bible';
 import PassagePicker from './passage-picker';
 
-// Laid out after kingjamesbibleonline.org: a tooled-leather band, a glowing hero with the
-// title, and a deep red bar to search or jump to a passage. The glow is Doré's
-// "Creation of Light" (1866), warmed to parchment tones.
+const leather =
+  'bg-[#3b2416] bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.08),transparent_60%),repeating-linear-gradient(90deg,rgb(0_0_0/0.06)_0_2px,transparent_2px_6px)]';
+
 export default function SiteHeader({ query, compact = false }: { query?: string; compact?: boolean }) {
-  const books = getLibrary().map((b) => ({
+  const books = allBooks().map((b) => ({
     slug: b.slug,
     title: b.title,
     testament: b.testament,
-    verses: verseCounts(b.slug),
+    verses: b.chapters.map((c) => c.verses.length),
   }));
 
   return (
     <header>
-      <nav className="relative border-b border-[#c8a45c]/60 bg-[#3b2416] bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.08),transparent_60%),repeating-linear-gradient(90deg,rgb(0_0_0/0.06)_0_2px,transparent_2px_6px)] shadow-[inset_0_-6px_12px_-6px_rgb(0_0_0/0.5)]">
+      <nav className={`border-b border-[#c8a45c]/60 shadow-[inset_0_-6px_12px_-6px_rgb(0_0_0/0.5)] ${leather}`}>
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-center px-6 sm:justify-between">
           <Link href="/" className="hidden font-display text-lg tracking-wide text-[#e6c77f] [font-variant-caps:small-caps] hover:text-white sm:block">
             Holy Bible
           </Link>
-          <ul className="flex gap-6 font-display text-sm tracking-[0.12em] text-[#e6c77f] uppercase">
-            <li>
-              <Link href="/#verse-of-the-day" className="hover:text-white">
-                Verse of the day
-              </Link>
-            </li>
-            <li>
-              <Link href="/highlights" className="hover:text-white">
-                My highlights
-              </Link>
-            </li>
-            <li>
-              <Link href="/#contents" className="hover:text-white">
-                Contents
-              </Link>
-            </li>
-          </ul>
+          <div className="flex gap-6 font-display text-sm tracking-[0.12em] text-[#e6c77f] uppercase">
+            <Link href="/#verse-of-the-day" className="hover:text-white">Verse of the day</Link>
+            <Link href="/highlights" className="hover:text-white">My highlights</Link>
+            <Link href="/#contents" className="hover:text-white">Contents</Link>
+          </div>
         </div>
       </nav>
 
       {!compact && (
         <div className="relative isolate overflow-hidden border-b border-[#c8a45c]/50">
-          {/* eslint-disable-next-line @next/next/no-img-element -- a single local, pre-sized engraving */}
           <img
             src="/toc/creation-of-light.jpg"
             alt=""

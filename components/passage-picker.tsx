@@ -4,12 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ChevronRight, Search } from 'lucide-react';
 
-export interface PickerBook {
-  slug: string;
-  title: string;
-  testament: string;
-  verses: number[]; // verse count for each chapter
-}
+type Book = { slug: string; title: string; testament: string; verses: number[] };
 
 const label = 'font-display text-sm tracking-[0.12em] text-[#e6c77f] uppercase';
 const field =
@@ -17,8 +12,9 @@ const field =
 const go =
   'flex h-11 shrink-0 items-center justify-center rounded-md bg-[#d6a64a] px-4 text-[#3b2416] shadow-[0_4px_10px_-4px_rgb(0_0_0/0.6)] transition-colors hover:bg-[#e4b95e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e6c77f]';
 
-/** The bar under the header: search the text, or jump to a book, chapter and verse. */
-export default function PassagePicker({ books, query = '' }: { books: PickerBook[]; query?: string }) {
+const numbers = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+
+export default function PassagePicker({ books, query = '' }: { books: Book[]; query?: string }) {
   const router = useRouter();
   const [slug, setSlug] = useState(books[0].slug);
   const [chapter, setChapter] = useState(1);
@@ -29,12 +25,10 @@ export default function PassagePicker({ books, query = '' }: { books: PickerBook
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
       <form action="/search" role="search" className="flex flex-col gap-1.5">
-        <label htmlFor="q" className={label}>
-          Search the Bible
-        </label>
+        <label htmlFor="q" className={label}>Search the Bible</label>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-stone-500" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-stone-500" />
             <input
               id="q"
               name="q"
@@ -71,13 +65,9 @@ export default function PassagePicker({ books, query = '' }: { books: PickerBook
           >
             {testaments.map((t) => (
               <optgroup key={t} label={t}>
-                {books
-                  .filter((b) => b.testament === t)
-                  .map((b) => (
-                    <option key={b.slug} value={b.slug}>
-                      {b.title}
-                    </option>
-                  ))}
+                {books.filter((b) => b.testament === t).map((b) => (
+                  <option key={b.slug} value={b.slug}>{b.title}</option>
+                ))}
               </optgroup>
             ))}
           </select>
@@ -93,22 +83,14 @@ export default function PassagePicker({ books, query = '' }: { books: PickerBook
               setVerse(1);
             }}
           >
-            {book.verses.map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
+            {numbers(book.verses.length).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
 
         <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:w-24 sm:flex-none">
           <span className={label}>Verse</span>
           <select className={field} value={verse} onChange={(e) => setVerse(Number(e.target.value))}>
-            {Array.from({ length: book.verses[chapter - 1] ?? 1 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
+            {numbers(book.verses[chapter - 1]).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
 

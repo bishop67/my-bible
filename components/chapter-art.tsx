@@ -1,16 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Artwork } from '@/lib/art';
 
-// A print taped beside the page, with its caption.
-function Plate({ art, reference }: { art: Artwork; reference: string }) {
+export type Artwork = {
+  from: number;
+  to: number;
+  title: string;
+  artist: string;
+  year: number;
+  src: string;
+  width: number;
+  height: number;
+  page: string;
+  credit?: string;
+};
+
+type Props = { book: string; chapter: number };
+
+const link = 'underline decoration-stone-300 underline-offset-2 hover:text-stone-800';
+
+function Plate({ art, book, chapter }: Props & { art: Artwork }) {
   return (
     <figure className="relative -rotate-[0.6deg] bg-white p-3 pb-4 shadow-[0_10px_24px_-12px_rgb(28_25_23/0.45)]">
-      {/* Two strips of tape holding the print down. */}
-      <span aria-hidden className="absolute -top-2.5 left-6 h-5 w-16 -rotate-6 bg-amber-100/70 shadow-sm" />
-      <span aria-hidden className="absolute -top-2.5 right-6 h-5 w-16 rotate-6 bg-amber-100/70 shadow-sm" />
-      {/* eslint-disable-next-line @next/next/no-img-element -- remote Commons thumbnails, already sized */}
+      <span className="absolute -top-2.5 left-6 h-5 w-16 -rotate-6 bg-amber-100/70 shadow-sm" />
+      <span className="absolute -top-2.5 right-6 h-5 w-16 rotate-6 bg-amber-100/70 shadow-sm" />
       <img
         src={art.src}
         width={art.width}
@@ -24,18 +37,11 @@ function Plate({ art, reference }: { art: Artwork; reference: string }) {
         <span className="block text-lg italic">{art.title}</span>
         <span className="block text-sm text-stone-500">
           {art.artist}, {art.year} ·{' '}
-          <a href={`#v${art.from}`} className="underline decoration-stone-300 underline-offset-2 hover:text-stone-800">
-            {reference}
+          <a href={`#v${art.from}`} className={link}>
+            {book} {chapter}:{art.from}{art.to > art.from && `–${art.to}`}
           </a>{' '}
           ·{' '}
-          <a
-            href={art.page}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-stone-300 underline-offset-2 hover:text-stone-800"
-          >
-            source
-          </a>
+          <a href={art.page} target="_blank" rel="noopener noreferrer" className={link}>source</a>
         </span>
         {art.credit && <span className="mt-0.5 block text-xs text-stone-500">{art.credit}</span>}
       </figcaption>
@@ -43,49 +49,31 @@ function Plate({ art, reference }: { art: Artwork; reference: string }) {
   );
 }
 
-const refFor = (art: Artwork, book: string, chapter: number) =>
-  `${book} ${chapter}:${art.from}${art.to > art.from ? `–${art.to}` : ''}`;
-
-/** Inline plate, shown before the paragraph where its passage begins (narrower screens). */
-export function InlinePlate({ art, book, chapter }: { art: Artwork; book: string; chapter: number }) {
+export function InlinePlate(props: Props & { art: Artwork }) {
   return (
     <div className="mx-auto my-8 max-w-md xl:hidden">
-      <Plate art={art} reference={refFor(art, book, chapter)} />
+      <Plate {...props} />
     </div>
   );
 }
 
-/**
- * Column of pictures beside the page (wide screens). It follows the reader: whichever
- * passage is at the top of the viewport decides which picture is shown.
- */
-export function MarginPlates({ arts, book, chapter }: { arts: Artwork[]; book: string; chapter: number }) {
+export function MarginPlates({ arts, book, chapter }: Props & { arts: Artwork[] }) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
     if (arts.length < 2) return;
     const verses = [...document.querySelectorAll<HTMLElement>('[data-verse]')];
     const update = () => {
-      // The last verse whose top has scrolled past a third of the viewport is "being read".
-      const line = window.innerHeight / 3;
-      let current = 1;
-      for (const el of verses) {
-        if (el.getBoundingClientRect().top <= line) current = Number(el.dataset.verse);
-        else break;
-      }
-      let pick = 0;
-      arts.forEach((a, i) => {
-        if (a.from <= current) pick = i;
-      });
-      setActive(pick);
+      const reading = verses.findLast((el) => el.getBoundingClientRect().top <= innerHeight / 3);
+      const verse = reading ? Number(reading.dataset.verse) : 1;
+      setActive(Math.max(0, arts.findLastIndex((a) => a.from <= verse)));
     };
-    const frame = requestAnimationFrame(update);
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
+    update();
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
     return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
+      removeEventListener('scroll', update);
+      removeEventListener('resize', update);
     };
   }, [arts]);
 
@@ -98,10 +86,9 @@ export function MarginPlates({ arts, book, chapter }: { arts: Artwork[]; book: s
           <div
             key={art.src}
             inert={i !== active}
-            className="col-start-1 row-start-1 transition-[opacity,filter] duration-500 ease-out"
-            style={{ opacity: i === active ? 1 : 0, filter: i === active ? 'none' : 'blur(4px)' }}
+            className={`col-start-1 row-start-1 transition-[opacity,filter] duration-500 ease-out ${i === active ? '' : 'opacity-0 blur-[4px]'}`}
           >
-            <Plate art={art} reference={refFor(art, book, chapter)} />
+            <Plate art={art} book={book} chapter={chapter} />
           </div>
         ))}
         {arts.length > 1 && (
