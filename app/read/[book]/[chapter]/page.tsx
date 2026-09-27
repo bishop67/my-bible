@@ -1,4 +1,4 @@
-import { SquareChevronRight, SquareChevronLeft, ArrowLeft, ChevronDown, Bookmark } from 'lucide-react';
+import { SquareChevronRight, SquareChevronLeft, ChevronDown, Bookmark } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -51,7 +51,7 @@ export default async function ChapterPage({ params }: Props) {
           <nav className="flex items-center justify-between font-serif text-base text-stone-600">
             <div className="flex items-center gap-5">
               <Link href="/#contents" className="flex items-center gap-2 hover:text-stone-900">
-                <ArrowLeft size={18} /> Contents
+                <SquareChevronLeft size={18} /> Contents
               </Link>
               <Link href="/highlights" className="flex items-center gap-1.5 hover:text-stone-900">
                 <Bookmark size={16} /> Highlights
