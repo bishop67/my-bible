@@ -3,13 +3,19 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import art from '@/data/art.json';
-import { getBook, slugs, type Verse } from '@/lib/bible';
+import { allBooks, getBook, slugs, type Verse } from '@/lib/bible';
 import { InlinePlate, MarginPlates, type Artwork } from '@/components/chapter-art';
 import VerseTools from '@/components/verse-tools';
 import ContinueReading from '@/components/continue-reading';
 import SiteFooter from '@/components/site-footer';
 
 type Props = { params: Promise<{ book: string; chapter: string }> };
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return allBooks().flatMap((b) => b.chapters.map((c) => ({ book: b.slug, chapter: String(c.chapter) })));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { book, chapter } = await params;
