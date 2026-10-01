@@ -1,4 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import creationOfLight from '@/public/toc/creation-of-light.jpg';
 import { allBooks } from '@/lib/bible';
 import PassagePicker from './passage-picker';
 
@@ -30,10 +32,13 @@ export default function SiteHeader({ query, compact = false }: { query?: string;
 
       {!compact && (
         <div className="relative isolate overflow-hidden border-b border-[#c8a45c]/50">
-          <img
-            src="/toc/creation-of-light.jpg"
+          <Image
+            src={creationOfLight}
             alt=""
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_28%] [filter:sepia(0.45)_saturate(1.2)_brightness(1.06)_contrast(0.92)]"
+            fill
+            priority
+            sizes="100vw"
+            className="-z-10 object-cover object-[50%_28%] [filter:sepia(0.45)_saturate(1.2)_brightness(1.06)_contrast(0.92)]"
           />
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_80%_at_50%_55%,rgb(251_243_224/0.92),rgb(251_243_224/0.55)_55%,rgb(90_50_20/0.25))]" />
           <div className="mx-auto max-w-6xl px-6 py-14 text-center md:py-20">
