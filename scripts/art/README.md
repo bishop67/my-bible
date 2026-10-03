@@ -9,7 +9,7 @@ Sources, all from Wikimedia Commons and public domain:
 
 - **Hand-picked works** in `extra.json`, mostly for Apocrypha books the two series barely cover (Rembrandt, Michelangelo, Loutherbourg's Macklin Bible headpieces and others). A few are openly licensed photographs rather than public domain; their author and licence are shown under the picture.
 
-Images are not stored in the repo; the index points at Wikimedia's resized thumbnails.
+`localize.mjs` then downloads each picture once, shrinks it to a 720px WebP in `public/art` and points the index at that copy, so the site serves the pictures itself.
 
 ## Rebuild
 
@@ -24,6 +24,7 @@ node analyze.mjs cache/dore.json
 node analyze.mjs cache/schnorr.json
 node collect-extra.mjs
 node build.mjs
+node localize.mjs
 ```
 
 Every reference is checked against the verse counts in `data/bible` before it is kept.

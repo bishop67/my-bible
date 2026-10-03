@@ -1,4 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import creationOfLight from '@/public/toc/creation-of-light.jpg';
 import { ArrowLeft } from 'lucide-react';
 import { tocStyle } from '@/lib/toc-style';
 import SiteFooter from '@/components/site-footer';
@@ -9,11 +11,14 @@ export default function BooksLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen bg-[var(--paper)] text-stone-900 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <aside className="p-4 lg:sticky lg:top-0 lg:h-screen lg:p-8">
           <figure className="flex h-64 flex-col border border-stone-400/70 bg-[#f4efe4] p-2 shadow-[0_12px_30px_-18px_rgb(28_25_23/0.6)] sm:h-80 lg:h-full lg:p-3">
-            <div className="min-h-0 flex-1 border border-stone-400/70">
-              <img
-                src="/toc/creation-of-light.jpg"
+            <div className="relative min-h-0 flex-1 border border-stone-400/70">
+              <Image
+                src={creationOfLight}
                 alt="The Creation of Light, an engraving by Gustave Doré"
-                className="h-full w-full object-cover object-[50%_30%] [filter:sepia(0.35)_contrast(0.95)]"
+                fill
+                priority
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                className="object-cover object-[50%_30%] [filter:sepia(0.35)_contrast(0.95)]"
               />
             </div>
             <figcaption className="pt-2 text-center font-serif text-sm text-stone-600 italic lg:pt-3 lg:text-base">
