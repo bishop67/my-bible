@@ -56,6 +56,8 @@ function subscribe(listener: () => void) {
 
 export const useAnnotations = () => useSyncExternalStore(subscribe, read, () => EMPTY);
 
+export const useLoaded = () => useSyncExternalStore(subscribe, () => true, () => false);
+
 export function annotate(targets: Annotation[], change: { color?: string; note?: string }) {
   const next = { ...read() };
   for (const t of targets) {

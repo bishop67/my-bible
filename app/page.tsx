@@ -5,7 +5,7 @@ import Contents from '@/app/books/page';
 import { verseOfTheDay } from '@/lib/bible';
 import { tocStyle } from '@/lib/toc-style';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default function Home() {
   const verse = verseOfTheDay();

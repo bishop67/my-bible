@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { NotebookPen, Trash2 } from 'lucide-react';
-import { COLORS, annotate, useAnnotations, type Annotation } from '@/lib/annotations';
+import { COLORS, annotate, useAnnotations, useLoaded, type Annotation } from '@/lib/annotations';
 
 const chip = (active: boolean) =>
   `flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-serif text-base transition-colors ${
@@ -12,6 +12,7 @@ const chip = (active: boolean) =>
 
 export default function HighlightsList({ order }: { order: string[] }) {
   const store = useAnnotations();
+  const loaded = useLoaded();
   const [filter, setFilter] = useState('all');
 
   const all = Object.values(store).sort(
@@ -25,6 +26,8 @@ export default function HighlightsList({ order }: { order: string[] }) {
     if (books.at(-1)?.book === a.book) books.at(-1)!.items.push(a);
     else books.push({ book: a.book, items: [a] });
   }
+
+  if (!loaded) return null;
 
   if (all.length === 0) {
     return (
