@@ -20,7 +20,26 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { book, chapter } = await params;
   const data = getBook(book);
-  return { title: data ? `${data.title} ${parseInt(chapter)}` : 'Holy Bible' };
+  const n = parseInt(chapter);
+  const verses = data?.chapters.find((c) => c.chapter === n)?.verses;
+  if (!data || !verses) return { title: 'Holy Bible' };
+
+  const title = `${data.title} ${n}`;
+  const opening = verses.map((v) => v.text).join(' ');
+  const description = opening.length > 160 ? `${opening.slice(0, 157).replace(/\s+\S*$/, '')}…` : opening;
+  const plate = (art as Record<string, Record<string, Artwork[]>>)[book]?.[n]?.[0];
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'Holy Bible',
+      type: 'article',
+      images: plate ? [{ url: plate.src, width: plate.width, height: plate.height, alt: plate.title }] : ['/opengraph-image.jpg'],
+    },
+  };
 }
 
 export default async function ChapterPage({ params }: Props) {
