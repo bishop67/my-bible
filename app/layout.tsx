@@ -5,9 +5,14 @@ import './globals.css';
 const garamond = EB_Garamond({ subsets: ['latin'], variable: '--font-garamond' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 
+const description = 'A clean, reader-friendly King James Version Bible with the Apocrypha.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.URL ?? 'https://livingwine.netlify.app'),
   title: 'Holy Bible',
-  description: 'A clean, reader-friendly King James Version Bible with the Apocrypha.',
+  description,
+  openGraph: { title: 'Holy Bible', description, siteName: 'Holy Bible', type: 'website' },
+  twitter: { card: 'summary_large_image' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
